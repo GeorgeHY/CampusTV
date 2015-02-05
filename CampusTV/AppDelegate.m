@@ -7,17 +7,78 @@
 //
 
 #import "AppDelegate.h"
+#import "HomePageViewController.h"
+#import "LeftMenuViewController.h"
+#import "RightMenuViewController.h"
+#import "ECSlidingViewController.h"
+//#import "MMExampleDrawerVisualStateManager.h"
 
 @interface AppDelegate ()
-
+@property (nonatomic,strong) ECSlidingViewController *slidingViewController;
 @end
 
 @implementation AppDelegate
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
-    return YES;
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    LeftMenuViewController * leftMenuVC = [[LeftMenuViewController alloc]init];
+    HomePageViewController * homePageVC = [[HomePageViewController alloc]init];
+    RightMenuViewController * rightMenuVC = [[RightMenuViewController alloc]init];
+    UINavigationController * centerNavi = [[UINavigationController alloc]initWithRootViewController:homePageVC];
+//    UINavigationController * leftNavi = [[UINavigationController alloc]initWithRootViewController:leftMenuVC];
+//    UINavigationController * rightNavi = [[UINavigationController alloc]initWithRootViewController:rightMenuVC];
+    
+    
+    // configure top view controller
+    UIBarButtonItem *anchorRightButton = [[UIBarButtonItem alloc] initWithTitle:@"Left" style:UIBarButtonItemStylePlain target:self action:@selector(anchorRight)];
+    UIBarButtonItem *anchorLeftButton  = [[UIBarButtonItem alloc] initWithTitle:@"Right" style:UIBarButtonItemStylePlain target:self action:@selector(anchorLeft)];
+    homePageVC.navigationItem.title = @"首页";
+    homePageVC.navigationItem.leftBarButtonItem  = anchorRightButton;
+    homePageVC.navigationItem.rightBarButtonItem = anchorLeftButton;
+    homePageVC.view.backgroundColor = [UIColor whiteColor];
+    
+   
+    
+    // configure under left view controller
+//    leftMenuVC.view.layer.borderWidth     = 20;
+//    leftMenuVC.view.layer.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0].CGColor;
+//    leftMenuVC.view.layer.borderColor     = [UIColor colorWithWhite:0.8 alpha:1.0].CGColor;
+//    leftMenuVC.edgesForExtendedLayout     = UIRectEdgeTop | UIRectEdgeBottom | UIRectEdgeLeft; // don't go under the top view
+    
+    // configure under right view controller
+//    rightMenuVC.view.layer.borderWidth     = 20;
+//    rightMenuVC.view.layer.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0].CGColor;
+//    rightMenuVC.view.layer.borderColor     = [UIColor colorWithWhite:0.8 alpha:1.0].CGColor;
+//    rightMenuVC.edgesForExtendedLayout     = UIRectEdgeTop | UIRectEdgeBottom | UIRectEdgeRight; // don't go under the top view
+    
+    // configure sliding view controller
+    self.slidingViewController = [ECSlidingViewController slidingWithTopViewController:centerNavi];
+    self.slidingViewController.underLeftViewController  = leftMenuVC;
+    self.slidingViewController.underRightViewController = rightMenuVC;
+    
+    // enable swiping on the top view
+    [centerNavi.view addGestureRecognizer:self.slidingViewController.panGesture];
+    
+    // configure anchored layout
+    self.slidingViewController.anchorRightPeekAmount  = 100.0;
+    self.slidingViewController.anchorLeftRevealAmount = 100.0;
+    
+    self.window.rootViewController = self.slidingViewController;
+    
+    [self.window makeKeyAndVisible];
+    
+       return YES;
+}
+
+
+- (void)anchorRight {
+    [self.slidingViewController anchorTopViewToRightAnimated:YES];
+}
+
+- (void)anchorLeft {
+    [self.slidingViewController anchorTopViewToLeftAnimated:YES];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
